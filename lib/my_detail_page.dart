@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_getx/detail_controller.dart';
 import 'package:get/get.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,12 +16,31 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
 
+  List imgs=[];
+
+  _readData()async{
+    await DefaultAssetBundle.of(context).loadString("json/img.json").then((value){
+      setState(() {
+        imgs=json.decode(value);
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    _readData();
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     double height=MediaQuery.of(context).size.height;
     double width=MediaQuery.of(context).size.width;
     int _currentIndex  = 0;
+
+    final DetailController fav = Get.put(DetailController());
+
     return
       Scaffold(
           body: Container(
@@ -28,7 +48,7 @@ class _DetailPageState extends State<DetailPage> {
             child: Stack(
                 children: [
                   Positioned(top:50, left:10,child: IconButton(
-                    onPressed: ()=>null, icon: Icon(Icons.arrow_back_ios),
+                    onPressed: ()=>Get.to(()=>ContentPage()), icon: Icon(Icons.home_outlined,color: Colors.white,),
                   )),
                   Positioned(
                     top: 120,
@@ -50,7 +70,7 @@ class _DetailPageState extends State<DetailPage> {
                             CircleAvatar(
                               radius:40,
                               backgroundImage: AssetImage(
-                                  "img/background.jpg"
+                                  Get.arguments["img"]
                               ),
                             ),
                             SizedBox(width: 10,),
@@ -59,7 +79,7 @@ class _DetailPageState extends State<DetailPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "name",
+                                  Get.arguments["name"],
                                   style: TextStyle(
                                       color:Color(0xFF3b3f42),
                                       fontSize: 18,
@@ -142,7 +162,7 @@ class _DetailPageState extends State<DetailPage> {
                                 child:Row(
                                   children: [
                                     Text(
-                                "Title",
+                                Get.arguments["title"],
                                       style: TextStyle(
                                           fontSize: 30,
                                           fontWeight: FontWeight.w500
@@ -155,7 +175,8 @@ class _DetailPageState extends State<DetailPage> {
                             SizedBox(height: 20),
                             Container(
                               width: width,
-                              child: Text("Text",
+                              child: Text(
+                                Get.arguments["text"],
                                 style: TextStyle(
                                     fontSize: 20,
                                     color:Color(0xFFb8b8b8)
@@ -178,7 +199,8 @@ class _DetailPageState extends State<DetailPage> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Text("name",
+                                        Text(
+                                          Get.arguments["name"],
                                           style: TextStyle(
                                               fontSize: 18,
                                               color:Color(0xFF303030),
@@ -204,7 +226,8 @@ class _DetailPageState extends State<DetailPage> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Text("499",
+                                        Text(
+                                          Get.arguments["prize"],
                                           style: TextStyle(
                                               fontSize: 18,
                                               color:Color(0xFF303030),
@@ -281,7 +304,7 @@ class _DetailPageState extends State<DetailPage> {
                   )),
                   //images
                   Stack(
-                        children:[for(int i=0; i<5; i++)
+                        children:[for(int i=0; i<imgs.length; i++)
                           Positioned(
                               top:590,
                               left: (20+i*35).toDouble(),
@@ -292,7 +315,7 @@ class _DetailPageState extends State<DetailPage> {
                                 borderRadius: BorderRadius.circular(25),
                                 image: DecorationImage(
                                   image: AssetImage(
-                                    "img/background.jpg"
+                                    imgs[i]["img"]
                                   ),
                                   fit: BoxFit.cover
                                 )
@@ -317,7 +340,11 @@ class _DetailPageState extends State<DetailPage> {
                           borderRadius: BorderRadius.circular(20),
                           color:Color(0xFFfbc33e)
                         ),
-                        child: Icon(Icons.favorite_border,
+                        child: IconButton(
+                          onPressed: (){
+                            fav.favCounter();
+                          },
+                            icon: Icon(Icons.favorite_border),
                         color:Colors.white
                         )
                       ),
